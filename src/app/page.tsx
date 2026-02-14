@@ -8,82 +8,72 @@ export default function ValentinePage() {
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
   
-  // State untuk efek mengetik
-  const [typedText1, setTypedText1] = useState('');
-  const [typedText2, setTypedText2] = useState('');
-  const [typedText3, setTypedText3] = useState('');
-  const [typedText4, setTypedText4] = useState(''); // Tambah paragraf ke-4
+  // State untuk teks yang sedang diketik
+  const [displayedText1, setDisplayedText1] = useState('');
+  const [displayedText2, setDisplayedText2] = useState('');
+  const [displayedText3, setDisplayedText3] = useState('');
+  const [displayedText4, setDisplayedText4] = useState('');
+  
+  // State penanda status (Biar gak macet lagi)
+  const [step, setStep] = useState(0); // 0: Start, 1: Para 1 Done, 2: Para 2 Done...
   const [showButton, setShowButton] = useState(false);
 
-  // --- PESAN CINTA (PANJANG & ROMANTIS) ---
-  const message1 = "Hai sayang, Happy Valentine's Day! ❤️ Maaf ya kalau belakangan ini aku sering sibuk sendiri. Antara deadline project, tugas kuliah UT yang numpuk, atau aku yang kadang pusing ngurusin error kodingan.";
-  
-  const message2 = "Tapi aku mau kamu tau satu hal: Di setiap detik aku fokus depan laptop, dan di setiap lelah yang aku rasain, nama kamu selalu jadi alasan kenapa aku nggak mau nyerah.";
-  
-  const message3 = "Makasih udah jadi wanita paling sabar. Makasih udah mau ngertiin kesibukanku dan tetep nemenin aku berjuang dari nol. Kamu itu 'rumah' tempat aku pulang pas duniaku lagi capek-capeknya.";
-  
-  const message4 = "Semua kerja kerasku ini—tiap baris kode yang aku tulis—semuanya cuma buat satu tujuan: Ngebangun masa depan yang indah bareng kamu. I love you, selamanya. 🌹";
+  // --- PESAN ROMANTIS ---
+  const messages = [
+    "Hai sayang, Happy Valentine's Day! ❤️ Maaf ya kalau belakangan ini aku sering sibuk sendiri. Antara deadline project, tugas kuliah UT yang numpuk, atau aku yang kadang pusing ngurusin error kodingan.",
+    "Tapi aku mau kamu tau satu hal: Di setiap detik aku fokus depan laptop, dan di setiap lelah yang aku rasain, nama kamu selalu jadi alasan kenapa aku nggak mau nyerah.",
+    "Makasih udah jadi wanita paling sabar. Makasih udah mau ngertiin kesibukanku dan tetep nemenin aku berjuang dari nol. Kamu itu 'rumah' tempat aku pulang pas duniaku lagi capek-capeknya.",
+    "Semua kerja kerasku ini—tiap baris kode yang aku tulis—semuanya cuma buat satu tujuan: Ngebangun masa depan yang indah bareng kamu. I love you, selamanya. 🌹"
+  ];
 
-  // Ref untuk scroll otomatis ke bawah saat ngetik
+  // Ref untuk auto-scroll
   const textEndRef = useRef<HTMLDivElement>(null);
-
   const scrollToBottom = () => {
     textEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [typedText1, typedText2, typedText3, typedText4]);
+  }, [displayedText1, displayedText2, displayedText3, displayedText4]);
 
-  // Logika Typing Effect
+  // LOGIKA BARU (Menggunakan Async/Await biar lebih stabil)
   useEffect(() => {
     if (yesPressed) {
-      const speed = 35; // Kecepatan ngetik (ms)
+      const typeWriter = async () => {
+        const speed = 30; // Kecepatan ngetik
 
-      let i = 0;
-      const intervalId1 = setInterval(() => {
-        if (i < message1.length) {
-          setTypedText1((prev) => prev + message1.charAt(i));
-          i++;
-        } else {
-          clearInterval(intervalId1);
-          
-          let j = 0;
-          const intervalId2 = setInterval(() => {
-            if (j < message2.length) {
-              setTypedText2((prev) => prev + message2.charAt(j));
-              j++;
-            } else {
-              clearInterval(intervalId2);
+        // Fungsi ngetik satu paragraf
+        const typeParagraph = async (text: string, setText: Function) => {
+          for (let i = 0; i <= text.length; i++) {
+            setText(text.slice(0, i));
+            await new Promise((resolve) => setTimeout(resolve, speed));
+          }
+        };
 
-              let k = 0;
-              const intervalId3 = setInterval(() => {
-                if (k < message3.length) {
-                  setTypedText3((prev) => prev + message3.charAt(k));
-                  k++;
-                } else {
-                  clearInterval(intervalId3);
-                  
-                  let l = 0;
-                  const intervalId4 = setInterval(() => {
-                    if (l < message4.length) {
-                      setTypedText4((prev) => prev + message4.charAt(l));
-                      l++;
-                    } else {
-                      clearInterval(intervalId4);
-                      setShowButton(true);
-                    }
-                  }, speed);
-                }
-              }, speed);
-            }
-          }, speed);
-        }
-      }, speed);
+        // Mulai Paragraf 1
+        await typeParagraph(messages[0], setDisplayedText1);
+        setStep(1); // Tandai paragraf 1 selesai (apapun yang terjadi)
+        await new Promise(r => setTimeout(r, 500)); // Jeda dikit
 
-      return () => {
-        clearInterval(intervalId1);
+        // Mulai Paragraf 2
+        await typeParagraph(messages[1], setDisplayedText2);
+        setStep(2);
+        await new Promise(r => setTimeout(r, 500));
+
+        // Mulai Paragraf 3
+        await typeParagraph(messages[2], setDisplayedText3);
+        setStep(3);
+        await new Promise(r => setTimeout(r, 500));
+
+        // Mulai Paragraf 4
+        await typeParagraph(messages[3], setDisplayedText4);
+        setStep(4);
+        
+        // Munculin Tombol
+        setShowButton(true);
       };
+
+      typeWriter();
     }
   }, [yesPressed]);
 
@@ -113,7 +103,7 @@ export default function ValentinePage() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-2xl bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-3xl shadow-2xl border border-pink-200 overflow-y-auto max-h-[90vh]"
+          className="w-full max-w-2xl bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-3xl shadow-2xl border border-pink-200 overflow-y-auto max-h-[85vh]"
         >
           <img 
             src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif" 
@@ -121,39 +111,46 @@ export default function ValentinePage() {
             className="w-32 h-32 md:w-48 md:h-48 object-cover mx-auto rounded-2xl shadow-md mb-6"
           />
           
-          {/* AREA TEKS MENGETIK */}
-          <div className="text-left text-gray-800 text-sm md:text-base font-medium leading-relaxed space-y-4">
+          <div className="text-left text-gray-800 text-sm md:text-base font-medium leading-relaxed space-y-4 pb-4">
             
-            {/* Paragraf 1 */}
-            <div className="p-3 bg-pink-100 rounded-tr-xl rounded-bl-xl rounded-br-xl">
-              <p>{typedText1}</p>
+            {/* Paragraf 1 (Pink) */}
+            <div className="p-4 bg-pink-100 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm">
+              <p>{displayedText1}</p>
             </div>
             
-            {/* Paragraf 2 */}
-            {typedText1.length >= message1.length && (
-              <div className="p-3 bg-blue-100 rounded-tl-xl rounded-br-xl rounded-bl-xl text-right ml-auto">
-                <p>{typedText2}</p>
-              </div>
+            {/* Paragraf 2 (Biru - Kanan) - Muncul kalau step >= 1 */}
+            {step >= 1 && (
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                className="p-4 bg-blue-100 rounded-tl-xl rounded-br-xl rounded-bl-xl text-right ml-auto shadow-sm w-fit max-w-[90%]"
+              >
+                <p>{displayedText2}</p>
+              </motion.div>
             )}
 
-            {/* Paragraf 3 */}
-            {typedText2.length >= message2.length && (
-              <div className="p-3 bg-purple-100 rounded-tr-xl rounded-bl-xl rounded-br-xl">
-                <p>{typedText3}</p>
-              </div>
+            {/* Paragraf 3 (Ungu - Kiri) - Muncul kalau step >= 2 */}
+            {step >= 2 && (
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+                className="p-4 bg-purple-100 rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-sm w-fit max-w-[90%]"
+              >
+                <p>{displayedText3}</p>
+              </motion.div>
             )}
 
-             {/* Paragraf 4 */}
-             {typedText3.length >= message3.length && (
-              <div className="p-3 bg-red-100 rounded-tl-xl rounded-br-xl rounded-bl-xl text-right ml-auto border-2 border-red-200">
+             {/* Paragraf 4 (Merah - Kanan) - Muncul kalau step >= 3 */}
+             {step >= 3 && (
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+                className="p-4 bg-red-100 rounded-tl-xl rounded-br-xl rounded-bl-xl text-right ml-auto border-2 border-red-200 shadow-sm w-fit max-w-[90%]"
+              >
                 <p className="font-semibold text-red-800">
-                  {typedText4}
-                  {!showButton && <span className="animate-pulse">|</span>}
+                  {displayedText4}
                 </p>
-              </div>
+              </motion.div>
             )}
             
-            {/* Invisible div buat auto scroll */}
+            {/* Div kosong buat scroll otomatis */}
             <div ref={textEndRef} />
           </div>
 
@@ -161,7 +158,7 @@ export default function ValentinePage() {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="pt-8 pb-4"
+              className="pt-4"
             >
               <Link href="/" className="inline-block px-8 py-3 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-full font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
                 Kembali ke Home 🏠
@@ -170,7 +167,7 @@ export default function ValentinePage() {
           )}
         </motion.div>
       ) : (
-        // --- TAMPILAN PERTANYAAN ---
+        // --- TAMPILAN AWAL ---
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
