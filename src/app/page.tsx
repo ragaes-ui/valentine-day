@@ -8,19 +8,26 @@ export default function ValentinePage() {
   const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
   
-  // State untuk efek mengetik
+  // State untuk efek mengetik 3 Paragraf
   const [typedText1, setTypedText1] = useState('');
   const [typedText2, setTypedText2] = useState('');
+  const [typedText3, setTypedText3] = useState('');
   const [showButton, setShowButton] = useState(false);
 
-  // Pesan lengkap
-  const message1 = "Makasih ya udah sabar nemenin aku, bahkan saat aku sibuk sama laptop, tugas kuliah, atau kerjaan yang sering banget nggak ada habisnya.";
-  const message2 = "Kamu adalah support system terbaik yang pernah aku punya. Semua kerja kerasku ini tujuannya cuma satu: bangun masa depan yang lebih baik bareng kamu.";
+  // --- PESAN PANJANG & ROMANTIS DI SINI ---
+  const message1 = "Hai sayang, Happy Valentine! Maaf ya kalau akhir-akhir ini waktuku banyak tersita buat ngurusin kodingan error, tugas kuliah UT, atau project yang numpuk.";
+  
+  const message2 = "Tapi aku mau kamu tau, kamu itu alasan utama aku buat terus semangat. Di setiap baris kode yang aku tulis di laptop ini, terselip harapan besar buat ngebangun masa depan kita nanti.";
+  
+  const message3 = "Makasih udah jadi support system terbaik yang selalu sabar nemenin prosesku dari nol. Aku janji bakal terus berusaha keras buat bahagiain kamu. I love you! ❤️";
 
-  // Efek Mengetik (Typewriter)
+  // Logika Typing Effect (Berurutan 1 -> 2 -> 3)
   useEffect(() => {
     if (yesPressed) {
-      // Mulai ngetik paragraf 1
+      // Kecepatan ngetik (ms). Semakin kecil semakin ngebut.
+      const speed = 40; 
+
+      // Mulai Paragraf 1
       let i = 0;
       const intervalId1 = setInterval(() => {
         if (i < message1.length) {
@@ -29,7 +36,7 @@ export default function ValentinePage() {
         } else {
           clearInterval(intervalId1);
           
-          // Mulai ngetik paragraf 2 setelah paragraf 1 selesai
+          // Lanjut Paragraf 2
           let j = 0;
           const intervalId2 = setInterval(() => {
             if (j < message2.length) {
@@ -37,11 +44,22 @@ export default function ValentinePage() {
               j++;
             } else {
               clearInterval(intervalId2);
-              setShowButton(true); // Munculkan tombol Home setelah selesai
+
+              // Lanjut Paragraf 3
+              let k = 0;
+              const intervalId3 = setInterval(() => {
+                if (k < message3.length) {
+                  setTypedText3((prev) => prev + message3.charAt(k));
+                  k++;
+                } else {
+                  clearInterval(intervalId3);
+                  setShowButton(true); // Selesai semua, munculin tombol
+                }
+              }, speed);
             }
-          }, 50); // Kecepatan ngetik (makin kecil makin ngebut)
+          }, speed);
         }
-      }, 50);
+      }, speed);
 
       return () => {
         clearInterval(intervalId1);
@@ -49,7 +67,6 @@ export default function ValentinePage() {
     }
   }, [yesPressed]);
 
-  // Kata-kata tombol No
   const phrases = [
     "No", "Yakin nih?", "Beneran gamau?", "Coba pikir lagi deh..",
     "Jahat banget sih :(", "Aku nangis nih...", "Bercanda kan?",
@@ -63,7 +80,6 @@ export default function ValentinePage() {
 
   const handleYesClick = () => {
     setYesPressed(true);
-    // Tembakan Konfeti (Sekali saja biar ringan)
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
     confetti({ ...defaults, particleCount: 80, origin: { x: 0, y: 0.8 } });
     confetti({ ...defaults, particleCount: 80, origin: { x: 1, y: 0.8 } });
@@ -77,32 +93,36 @@ export default function ValentinePage() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="space-y-6 max-w-xl mx-auto bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-xl border border-pink-200"
+          className="w-full max-w-2xl bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl border border-pink-200"
         >
           <img 
             src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif" 
             alt="Bears kissing" 
-            className="w-48 h-48 md:w-56 md:h-56 object-cover mx-auto rounded-2xl shadow-md"
+            className="w-40 h-40 md:w-52 md:h-52 object-cover mx-auto rounded-2xl shadow-md mb-6"
           />
           
-          <h1 className="text-3xl md:text-4xl font-bold text-pink-600">
-            Happy Valentine! ❤️
-          </h1>
-
           {/* AREA TEKS MENGETIK */}
-          <div className="text-left text-gray-800 font-medium leading-relaxed space-y-4 min-h-[150px]">
-            <p className="border-l-4 border-pink-400 pl-4">
-              {typedText1}
-              {/* Kursor kedap-kedip saat ngetik paragraf 1 */}
-              {!typedText2 && <span className="animate-pulse text-pink-500">|</span>}
-            </p>
+          <div className="text-left text-gray-800 font-medium leading-relaxed space-y-6 min-h-[200px]">
+            {/* Paragraf 1 */}
+            <div className="border-l-4 border-pink-400 pl-4 bg-pink-50/50 p-2 rounded-r-lg">
+              <p>{typedText1}</p>
+            </div>
             
+            {/* Paragraf 2 */}
             {typedText1.length >= message1.length && (
-              <p className="border-l-4 border-blue-400 pl-4">
-                {typedText2}
-                {/* Kursor kedap-kedip saat ngetik paragraf 2 */}
-                {!showButton && <span className="animate-pulse text-blue-500">|</span>}
-              </p>
+              <div className="border-l-4 border-blue-400 pl-4 bg-blue-50/50 p-2 rounded-r-lg">
+                <p>{typedText2}</p>
+              </div>
+            )}
+
+            {/* Paragraf 3 */}
+            {typedText2.length >= message2.length && (
+              <div className="border-l-4 border-purple-400 pl-4 bg-purple-50/50 p-2 rounded-r-lg">
+                <p className="font-semibold text-gray-900">
+                  {typedText3}
+                  {!showButton && <span className="animate-pulse text-purple-500">|</span>}
+                </p>
+              </div>
             )}
           </div>
 
@@ -110,13 +130,10 @@ export default function ValentinePage() {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="pt-6 space-y-4"
+              className="pt-8"
             >
-              <p className="font-bold text-pink-500 text-2xl">
-                I love you! 🌹
-              </p>
-              <Link href="/" className="inline-block px-8 py-3 bg-pink-500 text-white rounded-full font-bold shadow-md hover:bg-pink-600 transition hover:-translate-y-1">
-                Kembali ke Home
+              <Link href="/" className="inline-block px-10 py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full font-bold shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+                Kembali ke Home 🏠
               </Link>
             </motion.div>
           )}
