@@ -1,172 +1,137 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import Link from 'next/link';
 
 export default function ValentinePage() {
+  const [noCount, setNoCount] = useState(0);
   const [yesPressed, setYesPressed] = useState(false);
-  const [noBtnPos, setNoBtnPos] = useState({ x: 0, y: 0 });
-  const [hearts, setHearts] = useState<{id: number, left: number, delay: number}[]>([]);
 
-  // --- KONFIGURASI PESAN ---
-  const fullMessage = `Sayang, makasih banyak ya udah mau jadi Valentine aku hari ini, dan semoga untuk hari-hari seterusnya. ❤️\n\nJujur, aku  bersyukur banget punya kamu yang selalu sabar nemenin aku, bahkan di saat-saat aku lagi mumet sama tugas kuliah atau deadline kerjaan. Kamu itu 'support system' paling canggih di hidupku yang nggak akan pernah bisa diganti sama teknologi manapun.\n\nSemua usaha dan kerja kerasku sekarang ini punya satu tujuan utama: membangun masa depan yang cerah dan bahagia sama kamu.\n\nHappy Valentine's Day, my love! 🌹`;
+  // Kata-kata lucu kalau dia coba klik No
+  const phrases = [
+    "No",
+    "Yakin nih?",
+    "Beneran gamau?",
+    "Coba pikir lagi deh..",
+    "Jahat banget sih :(",
+    "Aku nangis nih...",
+    "Bercanda kan?",
+    "Pleaseee...",
+    "I'm gonna die...",
+    "Yep, I'm dead.",
+    "Ok, kamu menang.",
+    "TAPI BOHONG, AYO KLIK YES!",
+  ];
 
-  const messageChars = Array.from(fullMessage);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.03, delayChildren: 0.5 },
-    },
+  const getNoButtonText = () => {
+    return phrases[Math.min(noCount, phrases.length - 1)];
   };
 
-  const letterVariants = {
-    hidden: { opacity: 0, y: 5 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  useEffect(() => {
-    const newHearts = Array.from({ length: 25 }).map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 5
-    }));
-    setHearts(newHearts);
-  }, []);
-
-  const moveNoButton = () => {
-    const x = Math.random() * 250 - 125;
-    const y = Math.random() * 250 - 125;
-    setNoBtnPos({ x, y });
-  };
-
+  // --- PERBAIKAN DI SINI (LEBIH RINGAN) ---
   const handleYesClick = () => {
     setYesPressed(true);
-    const duration = 3 * 1000;
-    const end = Date.now() + duration;
-    const colors = ['#ff1493', '#ff69b4', '#ffffff', '#ffd700'];
+    
+    // Tembakan Konfeti Simpel (Hemat Memori)
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+    
+    // Tembak dari kiri
+    confetti({
+      ...defaults,
+      particleCount: 80,
+      origin: { x: 0, y: 0.8 } // Pojok kiri bawah
+    });
 
-    (function frame() {
-      confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors });
-      confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    }());
+    // Tembak dari kanan
+    confetti({
+      ...defaults,
+      particleCount: 80,
+      origin: { x: 1, y: 0.8 } // Pojok kanan bawah
+    });
   };
 
   return (
-<div className="relative flex flex-col items-center justify-center min-h-[100dvh] bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 animate-gradient overflow-hidden px-4">      
-      {/* BACKGROUND FLOATING HEARTS */}
-      <div className="absolute inset-0 pointer-events-none select-none">
-        {hearts.map((heart) => (
-          <motion.div
-            key={heart.id}
-            initial={{ y: '110vh', opacity: 0 }}
-            animate={{ y: '-10vh', opacity: [0, 0.8, 0] }}
-            transition={{ duration: Math.random() * 7 + 5, repeat: Infinity, delay: heart.delay, ease: "linear" }}
-            style={{ left: `${heart.left}%`, position: 'absolute', fontSize: Math.random() * 20 + 20 + 'px' }}
-            className="text-pink-100/40 drop-shadow-lg"
-          >
-            ❤️
-          </motion.div>
-        ))}
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-pink-50 px-4 text-center overflow-hidden py-12">
+      {yesPressed ? (
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-8 max-w-xl mx-auto bg-white/60 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-pink-100"
+        >
+          {/* Gambar GIF (Gunakan img biasa agar ringan) */}
+          <img 
+            src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif" 
+            alt="Bears kissing" 
+            className="w-48 h-48 md:w-64 md:h-64 object-cover mx-auto rounded-2xl shadow-md"
+            loading="lazy" // Lazy load biar ringan
+          />
+          
+          <h1 className="text-3xl md:text-5xl font-bold text-pink-600 leading-tight">
+            Happy Valentine! ❤️
+          </h1>
 
-      <AnimatePresence mode='wait'>
-        {yesPressed ? (
-          // --- TAMPILAN SETELAH DITERIMA ---
-          <motion.div 
-            key="success"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, type: "spring" }}
-            className="relative z-20 p-8 md:p-12 bg-white/40 backdrop-blur-xl border-2 border-white/60 rounded-[2rem] shadow-2xl max-w-2xl w-full text-left"
-          >
-            <motion.img 
-              src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif" 
-              alt="Kiss" 
-              className="w-40 h-40 mx-auto rounded-2xl shadow-lg mb-8 mix-blend-multiply object-cover"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            />
-            
-            <motion.h1 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-              className="text-3xl md:text-4xl font-bold text-pink-700 drop-shadow-sm mb-6 text-center"
-            >
-              Yeayyy! I'm so happy! 🥰
-            </motion.h1>
-            
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="text-gray-800 text-base md:text-lg font-medium leading-relaxed tracking-wide bg-white/30 p-6 rounded-xl shadow-inner border border-white/40"
-              style={{ whiteSpace: 'pre-line' }}
-            >
-              {messageChars.map((char, index) => (
-                <motion.span key={index} variants={letterVariants}>
-                  {char}
-                </motion.span>
-              ))}
-              <motion.span
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ repeat: Infinity, duration: 0.8 }}
-                className="inline-block ml-1 w-0.5 h-5 bg-pink-600 align-middle"
-              />
-            </motion.div>
-          </motion.div>
-        ) : (
-          // --- TAMPILAN PERTANYAAN ---
-          <motion.div 
-            key="question"
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0, transition: { duration: 0.3 } }}
-            className="relative z-20 p-8 md:p-10 bg-white/30 backdrop-blur-lg border-2 border-white/50 rounded-[2rem] shadow-2xl mx-4 max-w-md text-center w-full"
-          >
-            <img 
-              src="https://media.tenor.com/K2sE9Xh2sKQAAAAi/bear-love.gif" 
-              alt="Cute bear" 
-              className="w-44 h-44 mx-auto mb-6 drop-shadow-2xl filter saturate-110"
-            />
-            
-            <h1 className="text-3xl md:text-4xl font-extrabold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.3)] mb-10 leading-snug">
-              Will you be my Valentine? 🥺
-            </h1>
-
-            <div className="flex flex-col md:flex-row items-center justify-center gap-5 relative min-h-[140px] md:min-h-0">
-              {/* TOMBOL YES (Hijau Segar) */}
-              <motion.button
-                whileHover={{ scale: 1.1, boxShadow: "0px 0px 20px rgb(34 197 94 / 50%)" }}
-                whileTap={{ scale: 0.9 }}
-                animate={{ scale: [1, 1.03, 1] }}
-                transition={{ repeat: Infinity, duration: 1.2 }}
-                className="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-emerald-400 to-green-500 text-white font-bold rounded-full shadow-xl border-2 border-white/40 text-lg tracking-wider hover:brightness-110"
-                onClick={handleYesClick}
-              >
-                MAU DONG! 😍
-              </motion.button>
-
-              {/* TOMBOL NO (MERAH JELAS) */}
-              <motion.button
-                onHoverStart={moveNoButton}
-                onTouchStart={moveNoButton}
-                animate={{ x: noBtnPos.x, y: noBtnPos.y }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                className="w-full md:w-auto px-10 py-4 bg-rose-500 text-white font-bold rounded-full shadow-xl border-2 border-rose-300 hover:bg-rose-600 hover:shadow-red-500/50 transition-all text-lg"
-              >
-                Gak dulu deh
-              </motion.button>
-            </div>
-            
-            <p className="mt-8 text-white/80 text-sm font-semibold drop-shadow-md">
-              *Tombol merah agak licin ya... 🤭
+          <div className="text-lg text-gray-700 font-medium leading-relaxed space-y-4 text-left md:text-center px-2">
+            <p>
+              Makasih ya udah sabar nemenin aku, bahkan saat aku sibuk sama laptop, tugas kuliah, atau kerjaan yang sering banget nggak ada habisnya.
             </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <p>
+              Kamu adalah <i>support system</i> terbaik yang pernah aku punya. Semua kerja kerasku ini tujuannya cuma satu: bangun masa depan yang lebih baik bareng kamu.
+            </p>
+            <p className="font-bold text-pink-500 text-2xl pt-4 text-center">
+              I love you! 🌹
+            </p>
+          </div>
+
+          <div className="pt-6">
+            <Link href="/" className="inline-block px-8 py-3 bg-pink-500 text-white rounded-full font-bold shadow-md hover:bg-pink-600 transition transform hover:-translate-y-1">
+              Kembali ke Home
+            </Link>
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-8 relative z-10"
+        >
+          <img 
+            src="https://media.tenor.com/K2sE9Xh2sKQAAAAi/bear-love.gif" 
+            alt="Cute bear" 
+            className="w-48 h-48 md:w-56 md:h-56 mx-auto rounded-2xl"
+            loading="eager" // Load duluan biar ga patah-patah
+          />
+          
+          <h1 className="text-3xl md:text-5xl font-bold text-pink-600 leading-tight drop-shadow-sm">
+            Will you be my Valentine? 🌹
+          </h1>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-md transition-all duration-300"
+              // Batasi ukuran maksimal tombol agar tidak membuat layout 'pecah' di layar kecil
+              style={{ 
+                fontSize: Math.min(noCount * 2 + 16, 24), 
+                padding: `${Math.min(noCount + 16, 20)}px ${Math.min(noCount * 2 + 32, 40)}px` 
+              }}
+              onClick={handleYesClick}
+            >
+              YES! 
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setNoCount(noCount + 1)}
+              className="px-8 py-4 bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md transition-all"
+            >
+              {noCount === 0 ? "No" : getNoButtonText()}
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
