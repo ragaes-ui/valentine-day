@@ -55,8 +55,7 @@ export default function ValentinePage() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 animate-gradient overflow-hidden px-4">
-      
+<div className="relative flex flex-col items-center justify-center min-h-[100dvh] bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 animate-gradient overflow-hidden px-4">      
       {/* BACKGROUND FLOATING HEARTS */}
       <div className="absolute inset-0 pointer-events-none select-none">
         {hearts.map((heart) => (
